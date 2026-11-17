@@ -23,6 +23,43 @@ The only dependencies are `requests`, `numpy` and `Pillow`, which a normal Comfy
 
 You need your own LLM server running separately. These nodes just send it HTTP requests.
 
+## API keys
+
+Most local servers don't need a key, and if you don't set one, none is sent. If your server does need one (vLLM or llama.cpp's server started with `--api-key`, a hosted OpenAI-compatible API, a reverse proxy with auth, etc.), both query nodes send it as an `Authorization: Bearer <key>` header.
+
+There are two ways to provide it.
+
+**1. The `LLM_API_KEY` environment variable (recommended).** Set it in the environment ComfyUI starts in, then restart ComfyUI.
+
+Linux / macOS, in the shell or script that launches ComfyUI:
+
+```bash
+export LLM_API_KEY="your-key-here"
+python main.py
+```
+
+Windows (Command Prompt), or add the `set` line to the top of `run_nvidia_gpu.bat` for the portable build:
+
+```bat
+set LLM_API_KEY=your-key-here
+python main.py
+```
+
+Windows (PowerShell):
+
+```powershell
+$env:LLM_API_KEY = "your-key-here"
+python main.py
+```
+
+systemd service: add `Environment=LLM_API_KEY=your-key-here` under `[Service]` (or point `EnvironmentFile=` at a file only you can read), then `systemctl daemon-reload` and restart the service.
+
+Docker: `docker run -e LLM_API_KEY=your-key-here ...`, or `environment:` in docker-compose.
+
+**2. The `api_key` input socket.** Connect a string to it if different nodes need different keys, for example when one workflow talks to two servers. It overrides `LLM_API_KEY` for that node.
+
+**Why there's no text box for the key:** anything typed into a node's widget gets saved in the workflow JSON and embedded in every PNG ComfyUI saves, so sharing an image or a workflow would share your key. The same applies if you connect a plain String node and type the key into it. That node saves it too. The environment variable never ends up in a workflow or image.
+
 ## Nodes
 
 ### LLM Query
@@ -33,6 +70,7 @@ Sends a text prompt to a chat-completions endpoint.
 - Optional sampling settings: `min_p`, `top_p`, `top_k`, `repeat_penalty`, `presence_penalty`, `seed`. Set them to `-1` or their neutral value to keep your server's defaults.
 - Thinking controls: `enable_thinking`, `thinking_budget`, `reasoning_effort` and `filter_thinking`. The last one strips `<think>…</think>` blocks and similar tags out of `response`, while `raw_response` keeps everything.
 - `prompt_prefix` is an input socket that gets put in front of the prompt.
+- `api_key` is an optional input socket for servers that need a key. See [API keys](#api-keys).
 - `debug_dump` writes the exact outgoing request to `output/llm_debug/last_payload.json`. Image data is shortened so the file stays readable.
 - Outputs: `response`, `raw_response` and `conversation`.
 
@@ -54,11 +92,14 @@ Turns a `conversation` into readable text you can view in a Show Text node, whic
 Appends text, with an optional timestamp and label, to a log file in ComfyUI's `output` folder. Use it to keep prompts or responses you liked after the run is over.
 
 ### Qwen Norm BBox → SAM3
-Parses `x1,y1,x2,y2` lines in Qwen-VL's 0–1000 normalized coordinates and turns them into pixel `BBOX`es for nodes that take a box input (e.g. SAM3 segmentation). Boxes smaller than 4px are dropped.
+Parses `x1,y1,x2,y2` boxes in Qwen-VL's 0–1000 normalized coordinates and turns them into pixel boxes. It finds any four comma-separated numbers in the text, so bare lines, `[x1, y1, x2, y2]` and Qwen's `{"bbox_2d": [...], "label": "..."}` JSON all work. Boxes smaller than 4px are dropped. There are two outputs with the same boxes in two formats:
+
+- `bounding_boxes` (`BOUNDING_BOX`): connect to core ComfyUI's **SAM3 Detect** `bboxes` input.
+- `bboxes` (`BBOX`): connect to [comfyui-easy-sam3](https://github.com/yolain/ComfyUI-Easy-Sam3)'s **Sam3 Image Segmentation** and other nodes that take `(x1, y1, x2, y2)` tuples.
 
 ## Example workflows
 
-Both of these also show up in ComfyUI's **Templates** browser under this pack. No images are included. Load your own into the **Load Image** nodes (each one is titled with what goes in it), and set `api_url` to your server.
+All of these also show up in ComfyUI's **Templates** browser under this pack. No images are included. Load your own into the **Load Image** nodes (each one is titled with what goes in it), and set `api_url` to your server.
 
 ### Animal classification: consistent output format
 
@@ -104,6 +145,18 @@ Turns any image into a text-to-image prompt (written for Krea 2) in your own sty
 The system prompt comes from Krea's [Krea 2 prompting guide](https://github.com/krea-ai/krea-2/blob/main/docs/prompting.md) (Apache-2.0).
 
 Your own generations make the best examples, because you know the exact prompt behind each one, and ComfyUI saves it in the PNG. To close the loop, connect `response` to a **CLIP Text Encode** and generate from it.
+
+### Qwen3-VL boxes to SAM3 masks
+
+**Workflow:** [`example_workflows/qwen_bbox_to_sam3.json`](example_workflows/qwen_bbox_to_sam3.json)
+
+[![Qwen3-VL boxes to SAM3 masks workflow](assets/qwen_bbox_to_sam3.png)](example_workflows/qwen_bbox_to_sam3.json)
+
+Describe what you want in plain words ("the biggest dog and the cocker spaniel"), and get a mask for exactly those objects. **LLM Vision Query** asks a Qwen3-VL model for bounding boxes, **Qwen Norm BBox → SAM3** turns its reply into pixel boxes, and core ComfyUI's **SAM3 Detect** segments inside each box. **Draw BBoxes** shows the boxes on the image so you can check them.
+
+- SAM3 Detect uses the `sam3.1_multiplex_fp16.safetensors` checkpoint, loaded with a normal **Load Checkpoint** node from `models/checkpoints`.
+- Leave SAM3 Detect's `conditioning` input empty. With only boxes connected, it segments inside each box.
+- Use a **Qwen3-VL** model, which gives coordinates on a 0–1000 scale. Qwen2.5-VL gives pixel coordinates, which this node would scale wrong.
 
 ## Conversations
 

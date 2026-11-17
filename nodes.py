@@ -209,15 +209,22 @@ def _abort_stream(response):
     response.close()
 
 
-def _post_chat(api_url, payload, timeout):
+def _post_chat(api_url, payload, timeout, api_key=""):
     """POST a streamed chat request that ComfyUI's cancel button can abort.
 
     Streaming is what makes cancel reach the server: llama.cpp and vLLM stop
     generating when a streaming client disconnects, while a non-streamed request
     runs to completion server-side. Returns a dict shaped like a non-streamed
     response so _extract_response works unchanged.
+
+    The key comes from the api_key socket, else the LLM_API_KEY env var. It is
+    never a widget, so it can't end up in saved workflows or PNG metadata.
     """
-    response = requests.post(api_url, json=payload, headers={"Content-Type": "application/json"},
+    headers = {"Content-Type": "application/json"}
+    key = (api_key or "").strip() or os.environ.get("LLM_API_KEY", "").strip()
+    if key:
+        headers["Authorization"] = f"Bearer {key}"
+    response = requests.post(api_url, json=payload, headers=headers,
                              stream=True, timeout=timeout)
     response.raise_for_status()
 
@@ -294,6 +301,8 @@ class LocalLLMQuery:
                 "reasoning_effort": (["off", "minimal", "low", "medium", "high", "xhigh", "max"], {"default": "off"}),
                 # Socket-only input; keep last so it can never shift saved widget values.
                 "prompt_prefix": ("STRING", {"default": "", "multiline": True, "forceInput": True}),
+                # Socket-only so the key never lands in workflow JSON; falls back to LLM_API_KEY.
+                "api_key": ("STRING", {"default": "", "forceInput": True}),
             },
         }
 
@@ -305,7 +314,8 @@ class LocalLLMQuery:
     def query(self, prompt, api_url, model, temperature, max_tokens, timeout,
               conversation=None, system_prompt="", min_p=0.0, top_p=-1.0, top_k=-1,
               repeat_penalty=1.0, presence_penalty=0.0, seed=-1, enable_thinking=False,
-              thinking_budget=4096, filter_thinking=True, prompt_prefix="", debug_dump=False, reasoning_effort="off"):
+              thinking_budget=4096, filter_thinking=True, prompt_prefix="", debug_dump=False, reasoning_effort="off",
+              api_key=""):
 
         if prompt_prefix:
             prompt = prompt_prefix + "\n" + prompt
@@ -329,7 +339,7 @@ class LocalLLMQuery:
         if debug_dump:
             print(f"[LocalLLMQuery] payload dumped to {_dump_payload(payload, api_url)}")
 
-        data = _post_chat(api_url, payload, timeout)
+        data = _post_chat(api_url, payload, timeout, api_key)
 
         filtered, raw_text = _extract_response(data, enable_thinking or reasoning_effort != "off", filter_thinking)
 
@@ -373,6 +383,8 @@ class LocalLLMVisionQuery:
                 "reasoning_effort": (["off", "minimal", "low", "medium", "high", "xhigh", "max"], {"default": "off"}),
                 # Socket-only input; keep last so it can never shift saved widget values.
                 "prompt_prefix": ("STRING", {"default": "", "multiline": True, "forceInput": True}),
+                # Socket-only so the key never lands in workflow JSON; falls back to LLM_API_KEY.
+                "api_key": ("STRING", {"default": "", "forceInput": True}),
             },
         }
 
@@ -386,7 +398,7 @@ class LocalLLMVisionQuery:
               top_k=-1, repeat_penalty=1.0, presence_penalty=0.0, seed=-1,
               enable_thinking=False, thinking_budget=4096, filter_thinking=True,
               image_detail="auto", video_max_frames=16, keep_image_in_history=False,
-              prompt_prefix="", debug_dump=False, reasoning_effort="off"):
+              prompt_prefix="", debug_dump=False, reasoning_effort="off", api_key=""):
 
         if prompt_prefix:
             prompt = prompt_prefix + "\n" + prompt
@@ -418,7 +430,7 @@ class LocalLLMVisionQuery:
         if debug_dump:
             print(f"[LocalLLMVisionQuery] payload dumped to {_dump_payload(payload, api_url)}")
 
-        data = _post_chat(api_url, payload, timeout)
+        data = _post_chat(api_url, payload, timeout, api_key)
 
         filtered, raw_text = _extract_response(data, enable_thinking or reasoning_effort != "off", filter_thinking)
 
@@ -575,8 +587,19 @@ class LLMConversationToText:
         return ("\n\n".join(lines),)
 
 
+_BOX_RE = re.compile(r"(-?\d+(?:\.\d+)?)" + r"\s*,\s*(-?\d+(?:\.\d+)?)" * 3)
+
+
 class QwenNormBBoxToSAM3:
-    """Parse x1,y1,x2,y2 lines (Qwen 0-1000 normalized) -> pixel BBOX list."""
+    """Parse x1,y1,x2,y2 boxes (Qwen 0-1000 normalized) into pixel boxes.
+
+    Accepts any four comma-separated numbers anywhere in the text, so bare
+    lines, ``[x1, y1, x2, y2]`` and Qwen's ``{"bbox_2d": [...]}`` JSON all work.
+
+    Two outputs, same boxes: ``bboxes`` is the (x1, y1, x2, y2) tuple list that
+    comfyui-easy-sam3 reads; ``bounding_boxes`` is core ComfyUI's BOUNDING_BOX
+    format ({x, y, width, height} dicts) for the built-in SAM3 Detect node.
+    """
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -587,22 +610,17 @@ class QwenNormBBoxToSAM3:
             }
         }
 
-    RETURN_TYPES = ("BBOX",)
-    RETURN_NAMES = ("bboxes",)
+    # New outputs go after existing ones so saved workflow links keep their slots.
+    RETURN_TYPES = ("BBOX", "BOUNDING_BOX")
+    RETURN_NAMES = ("bboxes", "bounding_boxes")
     FUNCTION = "convert"
     CATEGORY = "LLM Vision Party Tricks"
 
     def convert(self, bbox_string, image):
         h, w = image.shape[1], image.shape[2]
         boxes = []
-        for line in bbox_string.strip().splitlines():
-            parts = line.strip().split(",")
-            if len(parts) != 4:
-                continue
-            try:
-                x1, y1, x2, y2 = (float(p) for p in parts)
-            except ValueError:
-                continue
+        for match in _BOX_RE.finditer(bbox_string):
+            x1, y1, x2, y2 = (float(p) for p in match.groups())
             x1, x2 = x1 * w / 1000, x2 * w / 1000
             y1, y2 = y1 * h / 1000, y2 * h / 1000
             x1, x2 = sorted((max(0.0, min(x1, w)), max(0.0, min(x2, w))))
@@ -610,7 +628,9 @@ class QwenNormBBoxToSAM3:
             if (x2 - x1) < 4 or (y2 - y1) < 4:
                 continue
             boxes.append((int(x1), int(y1), int(x2), int(y2)))
-        return (boxes,)
+        core_boxes = [{"x": x1, "y": y1, "width": x2 - x1, "height": y2 - y1}
+                      for x1, y1, x2, y2 in boxes]
+        return (boxes, core_boxes)
 
 
 NODE_CLASS_MAPPINGS = {
