@@ -62,7 +62,9 @@ Both of these also show up in ComfyUI's **Templates** browser under this pack. N
 
 ### Animal classification: consistent output format
 
-[`example_workflows/fewshot_animal_id.json`](example_workflows/fewshot_animal_id.json)
+**Workflow:** [`example_workflows/fewshot_animal_id.json`](example_workflows/fewshot_animal_id.json)
+
+[![Animal classification workflow](assets/fewshot_animal_id.png)](example_workflows/fewshot_animal_id.json)
 
 Two **LLM Few-Shot Example** nodes (an American robin and a red fox) show the model the answer format you want:
 
@@ -78,7 +80,9 @@ Then **LLM Vision Query** is asked about a new animal and answers in that same f
 
 ### Hare vs rabbit: identification
 
-[`example_workflows/fewshot_hare_vs_rabbit.json`](example_workflows/fewshot_hare_vs_rabbit.json)
+**Workflow:** [`example_workflows/fewshot_hare_vs_rabbit.json`](example_workflows/fewshot_hare_vs_rabbit.json)
+
+[![Hare vs rabbit workflow](assets/fewshot_hare_vs_rabbit.png)](example_workflows/fewshot_hare_vs_rabbit.json)
 
 Hares and rabbits look alike, and vision models often mix them up. This one uses **Batch Images** to give each **LLM Few-Shot Example** node several photos at once: two hares (one of them an arctic hare) labeled as hares, and two rabbits labeled as rabbits. Then it asks about a new animal.
 
@@ -91,7 +95,9 @@ Needs a ComfyUI recent enough to include the core **Batch Images** node.
 
 ### Image to prompt: system prompt plus examples
 
-[`example_workflows/fewshot_image_to_prompt.json`](example_workflows/fewshot_image_to_prompt.json)
+**Workflow:** [`example_workflows/fewshot_image_to_prompt.json`](example_workflows/fewshot_image_to_prompt.json)
+
+[![Image to prompt workflow](assets/fewshot_image_to_prompt.png)](example_workflows/fewshot_image_to_prompt.json)
 
 Turns any image into a text-to-image prompt (written for Krea 2) in your own style. Four **LLM Few-Shot Example** nodes pair images with the prompts that made them: a mid-century collage, an anime portrait, a rocket launch and a 3D designer toy. The first one in the chain also sets the **system prompt** (`system_prompt` on a Few-Shot node puts it at the start of the conversation). Then **LLM Vision Query** writes a prompt for a new image.
 
