@@ -17,7 +17,7 @@ cd ComfyUI/custom_nodes
 git clone https://github.com/rahart/comfyui-llm-vision-partytricks
 ```
 
-Restart ComfyUI. The nodes show up under **LLM Vision Party Tricks** (plus one under **Qwen/SAM3**).
+Restart ComfyUI. All the nodes show up under **LLM Vision Party Tricks**.
 
 The only dependencies are `requests`, `numpy` and `Pillow`, which a normal ComfyUI install already has.
 

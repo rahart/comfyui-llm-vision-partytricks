@@ -590,7 +590,7 @@ class QwenNormBBoxToSAM3:
     RETURN_TYPES = ("BBOX",)
     RETURN_NAMES = ("bboxes",)
     FUNCTION = "convert"
-    CATEGORY = "Qwen/SAM3"
+    CATEGORY = "LLM Vision Party Tricks"
 
     def convert(self, bbox_string, image):
         h, w = image.shape[1], image.shape[2]
