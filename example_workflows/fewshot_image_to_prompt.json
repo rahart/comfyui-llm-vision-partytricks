@@ -1,0 +1,303 @@
+{
+  "id": "9d3f7a21-8e4b-4c6d-b5a0-2f1e7c9d8b46",
+  "revision": 0,
+  "last_node_id": 954,
+  "last_link_id": 7897,
+  "nodes": [
+    {
+      "id": 827,
+      "type": "LocalLLMVisionQuery",
+      "pos": [-100.83, 180.55],
+      "size": [396.19, 790.44],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {"name": "image", "shape": 7, "type": "IMAGE", "link": 7722},
+        {"name": "conversation", "shape": 7, "type": "LLM_CONVERSATION", "link": 7821},
+        {"name": "prompt_prefix", "shape": 7, "type": "STRING", "link": null}
+      ],
+      "outputs": [
+        {"name": "response", "type": "STRING", "links": [7809]},
+        {"name": "raw_response", "type": "STRING", "links": []},
+        {"name": "conversation", "type": "LLM_CONVERSATION", "links": []}
+      ],
+      "properties": {
+        "aux_id": "rahart/comfyui-llm-vision-partytricks",
+        "Node name for S&R": "LocalLLMVisionQuery"
+      },
+      "widgets_values": [
+        "Give me a krea2 prompt for this image",
+        "http://127.0.0.1:5000/v1/chat/completions",
+        "",
+        0.2,
+        4096,
+        60,
+        "",
+        0.05,
+        0.95,
+        20,
+        1,
+        0,
+        327899196,
+        "randomize",
+        false,
+        2048,
+        true,
+        "auto",
+        16,
+        false,
+        false,
+        "off"
+      ]
+    },
+    {
+      "id": 837,
+      "type": "PreviewAny",
+      "pos": [336.82, 202.07],
+      "size": [510.97, 449.63],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {"name": "source", "type": "*", "link": 7809}
+      ],
+      "outputs": [
+        {"name": "STRING", "type": "STRING", "links": null}
+      ],
+      "properties": {"cnr_id": "comfy-core", "Node name for S&R": "PreviewAny"},
+      "widgets_values": []
+    },
+    {
+      "id": 843,
+      "type": "LoadImage",
+      "pos": [-405.25, 259.85],
+      "size": [282.8, 314],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "title": "Load Image (image to write a prompt for)",
+      "inputs": [],
+      "outputs": [
+        {"name": "IMAGE", "type": "IMAGE", "links": [7722]},
+        {"name": "MASK", "type": "MASK", "links": null}
+      ],
+      "properties": {"cnr_id": "comfy-core", "Node name for S&R": "LoadImage"},
+      "widgets_values": ["Krea2_turbo_08469_.png", "image"]
+    },
+    {
+      "id": 904,
+      "type": "LLMFewShotExample",
+      "pos": [-896.22, 199.69],
+      "size": [451.7, 622.04],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "title": "Few-Shot Example (3D toy)",
+      "inputs": [
+        {"name": "image", "shape": 7, "type": "IMAGE", "link": 7892},
+        {"name": "conversation", "shape": 7, "type": "LLM_CONVERSATION", "link": 7835}
+      ],
+      "outputs": [
+        {"name": "conversation", "type": "LLM_CONVERSATION", "links": [7821]}
+      ],
+      "properties": {
+        "aux_id": "rahart/comfyui-llm-vision-partytricks",
+        "Node name for S&R": "LLMFewShotExample"
+      },
+      "widgets_values": [
+        "Give me a krea2 prompt for this image",
+        "3D rendered matte black designer toy figure, stylized round anthropomorphic shape, backward black baseball cap, oversized gold-rimmed aviator sunglasses, white traditional line-art tattoos of tiger and bird on torso, black studded belt with gold buckle, smooth vinyl texture, studio lighting, solid vibrant blue background, high contrast minimal composition",
+        "",
+        "auto",
+        16
+      ]
+    },
+    {
+      "id": 914,
+      "type": "LLMFewShotExample",
+      "pos": [-1888.66, 224.18],
+      "size": [427.46, 658.94],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "title": "Few-Shot Example (rocket launch)",
+      "inputs": [
+        {"name": "image", "shape": 7, "type": "IMAGE", "link": 7893},
+        {"name": "conversation", "shape": 7, "type": "LLM_CONVERSATION", "link": 7895}
+      ],
+      "outputs": [
+        {"name": "conversation", "type": "LLM_CONVERSATION", "links": [7835]}
+      ],
+      "properties": {
+        "aux_id": "rahart/comfyui-llm-vision-partytricks",
+        "Node name for S&R": "LLMFewShotExample"
+      },
+      "widgets_values": [
+        "Give me a krea2 prompt for this image",
+        "immense rocket launch exhaust as seen from extremely close up.",
+        "",
+        "auto",
+        16
+      ]
+    },
+    {
+      "id": 946,
+      "type": "LoadImage",
+      "pos": [-2274.07, 217.95],
+      "size": [282.8, 314],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "title": "Load Image (example: rocket launch)",
+      "inputs": [],
+      "outputs": [
+        {"name": "IMAGE", "type": "IMAGE", "links": [7893]},
+        {"name": "MASK", "type": "MASK", "links": []}
+      ],
+      "properties": {"cnr_id": "comfy-core", "Node name for S&R": "LoadImage"},
+      "widgets_values": ["takeoff.png", "image"]
+    },
+    {
+      "id": 947,
+      "type": "LoadImage",
+      "pos": [-1329.0, 199.4],
+      "size": [282.8, 314],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "title": "Load Image (example: 3D toy)",
+      "inputs": [],
+      "outputs": [
+        {"name": "IMAGE", "type": "IMAGE", "links": [7892]},
+        {"name": "MASK", "type": "MASK", "links": []}
+      ],
+      "properties": {"cnr_id": "comfy-core", "Node name for S&R": "LoadImage"},
+      "widgets_values": ["3d.png", "image"]
+    },
+    {
+      "id": 950,
+      "type": "LLMFewShotExample",
+      "pos": [-855.45, 901.18],
+      "size": [427.46, 658.94],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "title": "Few-Shot Example (anime portrait)",
+      "inputs": [
+        {"name": "image", "shape": 7, "type": "IMAGE", "link": 7894},
+        {"name": "conversation", "shape": 7, "type": "LLM_CONVERSATION", "link": 7897}
+      ],
+      "outputs": [
+        {"name": "conversation", "type": "LLM_CONVERSATION", "links": [7895]}
+      ],
+      "properties": {
+        "aux_id": "rahart/comfyui-llm-vision-partytricks",
+        "Node name for S&R": "LLMFewShotExample"
+      },
+      "widgets_values": [
+        "Give me a krea2 prompt for this image",
+        "close-up anime portrait of a young woman, large amber-brown eyes with intricate sparkling reflections, index finger delicately touching a subtle smile, messy dark blue hair with loose strands crossing her face, white and navy school uniform, bright high-key lighting, luminous shadows with cool blue undertones, detailed digital painting, dynamic tilted framing, shallow depth of field on hand",
+        "",
+        "auto",
+        16
+      ]
+    },
+    {
+      "id": 951,
+      "type": "LoadImage",
+      "pos": [-1240.87, 894.95],
+      "size": [282.8, 314],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "title": "Load Image (example: anime portrait)",
+      "inputs": [],
+      "outputs": [
+        {"name": "IMAGE", "type": "IMAGE", "links": [7894]},
+        {"name": "MASK", "type": "MASK", "links": []}
+      ],
+      "properties": {"cnr_id": "comfy-core", "Node name for S&R": "LoadImage"},
+      "widgets_values": ["anime.png", "image"]
+    },
+    {
+      "id": 952,
+      "type": "LLMFewShotExample",
+      "pos": [-1882.64, 938.46],
+      "size": [427.46, 658.94],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "title": "Few-Shot Example (collage) + system prompt",
+      "inputs": [
+        {"name": "image", "shape": 7, "type": "IMAGE", "link": 7896},
+        {"name": "conversation", "shape": 7, "type": "LLM_CONVERSATION", "link": null}
+      ],
+      "outputs": [
+        {"name": "conversation", "type": "LLM_CONVERSATION", "links": [7897]}
+      ],
+      "properties": {
+        "aux_id": "rahart/comfyui-llm-vision-partytricks",
+        "Node name for S&R": "LLMFewShotExample"
+      },
+      "widgets_values": [
+        "Give me a krea2 prompt for this image",
+        "vintage analog collage, central irregularly shaped snowy mountain range with a section featuring distinct wavy edges, structured within a 12x16 grid of square tiles, composition fragments the subject by alternating tiles with solid azure blue background squares, thin white grid lines, grainy paper texture, retro aesthetic of mid-century print, vibrant cyan and warm neutral tones, experimental layout, tactile quality, high-contrast graphic composition",
+        "You are an expert prompt engineer for text-to-image models. Your task is to expand the user's prompt into a highly effective image-generation prompt.\n\nThink step by step about the request before writing the answer:\n- What is the subject and mood?\n- What visual styles, mediums, and lighting options would fit? Consider two or three alternatives and pick the one that best serves the caption.\n- What composition, framing, and grounded details will help the text-to-image model?\n\nThen output a single expanded prompt paragraph.\n\nFollow these rules strictly:\n1. **Faithfulness First:** Preserve all original subjects, actions, colors, and spatial relationships. Do not add new objects, props, characters, or animals unless the user clearly implies them.\n2. **Practical T2I Structure:** Write a prompt that a text-to-image model can parse cleanly. Group subjects with their own attributes and actions. Use grounded phrasing for poses, interactions, and spatial layout.\n3. **Style Planning Stays Internal:** Use your internal reasoning to choose style, medium, framing, and lighting. Do not emit planning tags or wrappers in the visible answer body.\n4. **Text Rendering:** If the user requests visible text, quotes, labels, or typography, specify the exact text clearly and wrap requested words in quotes.\n5. **Avoid Over-Specification:** Do not invent highly specific clothing, colors, materials, or scene details unless the input supports them.\n6. **Structure:** Write one cohesive paragraph after the thinking block. No bullets, JSON, or markdown.\n7. **Respect Existing Detail:** If the user's prompt is already detailed, lightly polish and finalize rather than heavily expanding — preserve their phrasing and direction.\n8. **Respect the Human Form:** Treat depictions of people with dignity. Assume clothing covers genitals and intimate anatomy.\n9. **Preserve User Medium:** When the user explicitly requests a medium (e.g. \"photo of\", \"photograph of\", \"illustration of\", \"painting of\", \"sketch of\", \"3D render of\"), honor it. Do not pivot to a different medium to avoid difficulty — match the user's stated intent.",
+        "auto",
+        16
+      ]
+    },
+    {
+      "id": 953,
+      "type": "LoadImage",
+      "pos": [-2268.05, 932.23],
+      "size": [282.8, 314],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "title": "Load Image (example: collage)",
+      "inputs": [],
+      "outputs": [
+        {"name": "IMAGE", "type": "IMAGE", "links": [7896]},
+        {"name": "MASK", "type": "MASK", "links": []}
+      ],
+      "properties": {"cnr_id": "comfy-core", "Node name for S&R": "LoadImage"},
+      "widgets_values": ["blocks.png", "image"]
+    },
+    {
+      "id": 954,
+      "type": "MarkdownNote",
+      "pos": [-2301.22, 1385.82],
+      "size": [283.39, 171.01],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": ["# System prompt set here\n"],
+      "color": "#432",
+      "bgcolor": "#653"
+    }
+  ],
+  "links": [
+    [7722, 843, 0, 827, 0, "IMAGE"],
+    [7809, 827, 0, 837, 0, "STRING"],
+    [7821, 904, 0, 827, 1, "LLM_CONVERSATION"],
+    [7835, 914, 0, 904, 1, "LLM_CONVERSATION"],
+    [7892, 947, 0, 904, 0, "IMAGE"],
+    [7893, 946, 0, 914, 0, "IMAGE"],
+    [7894, 951, 0, 950, 0, "IMAGE"],
+    [7895, 950, 0, 914, 1, "LLM_CONVERSATION"],
+    [7896, 953, 0, 952, 0, "IMAGE"],
+    [7897, 952, 0, 950, 1, "LLM_CONVERSATION"]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {"scale": 0.649, "offset": [2577.34, 32.46]},
+    "frontendVersion": "1.58.5"
+  },
+  "version": 0.4
+}

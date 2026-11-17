@@ -56,6 +56,49 @@ Appends text, with an optional timestamp and label, to a log file in ComfyUI's `
 ### Qwen Norm BBox → SAM3
 Parses `x1,y1,x2,y2` lines in Qwen-VL's 0–1000 normalized coordinates and turns them into pixel `BBOX`es for nodes that take a box input (e.g. SAM3 segmentation). Boxes smaller than 4px are dropped.
 
+## Example workflows
+
+Both of these also show up in ComfyUI's **Templates** browser under this pack. No images are included. Load your own into the **Load Image** nodes (each one is titled with what goes in it), and set `api_url` to your server.
+
+### Animal classification: consistent output format
+
+[`example_workflows/fewshot_animal_id.json`](example_workflows/fewshot_animal_id.json)
+
+Two **LLM Few-Shot Example** nodes (an American robin and a red fox) show the model the answer format you want:
+
+```
+common_name: Red Fox
+scientific_name: Vulpes vulpes
+class: mammal
+key_marks: rust-orange coat, white-tipped bushy tail, black legs, pointed ears
+confidence: high
+```
+
+Then **LLM Vision Query** is asked about a new animal and answers in that same format. Disconnect its `conversation` input and run it again to see what the model gives you without the examples.
+
+### Hare vs rabbit: identification
+
+[`example_workflows/fewshot_hare_vs_rabbit.json`](example_workflows/fewshot_hare_vs_rabbit.json)
+
+Hares and rabbits look alike, and vision models often mix them up. This one uses **Batch Images** to give each **LLM Few-Shot Example** node several photos at once: two hares (one of them an arctic hare) labeled as hares, and two rabbits labeled as rabbits. Then it asks about a new animal.
+
+Things to try:
+- The prompt is deliberately leading ("what kind of **hare** is this?"). Give it a rabbit and see whether the model corrects you.
+- **Jackrabbits** are actually hares, and **Belgian Hares** are actually rabbits. Both are good tests of whether the model goes by the animal or by the name.
+- Add the visible clues to the example answers (long black-tipped ears and long legs for hares, shorter ears and a compact body for rabbits) to steer the model toward the right features.
+
+Needs a ComfyUI recent enough to include the core **Batch Images** node.
+
+### Image to prompt: system prompt plus examples
+
+[`example_workflows/fewshot_image_to_prompt.json`](example_workflows/fewshot_image_to_prompt.json)
+
+Turns any image into a text-to-image prompt (written for Krea 2) in your own style. Four **LLM Few-Shot Example** nodes pair images with the prompts that made them: a mid-century collage, an anime portrait, a rocket launch and a 3D designer toy. The first one in the chain also sets the **system prompt** (`system_prompt` on a Few-Shot node puts it at the start of the conversation). Then **LLM Vision Query** writes a prompt for a new image.
+
+The system prompt comes from Krea's [Krea 2 prompting guide](https://github.com/krea-ai/krea-2/blob/main/docs/prompting.md) (Apache-2.0).
+
+Your own generations make the best examples, because you know the exact prompt behind each one, and ComfyUI saves it in the PNG. To close the loop, connect `response` to a **CLIP Text Encode** and generate from it.
+
 ## Conversations
 
 Every query node has an optional `conversation` input and a `conversation` output, so you can chain them into a multi-turn chat inside one workflow. A `system_prompt` on a later node replaces the system prompt at the start of the incoming conversation, which lets you refine it partway through a chain.

@@ -1,0 +1,183 @@
+{
+  "id": "ac65a38c-6f54-497d-ac4d-ad4f12092ce1",
+  "revision": 0,
+  "last_node_id": 943,
+  "last_link_id": 7882,
+  "nodes": [
+    {
+      "id": 827,
+      "type": "LocalLLMVisionQuery",
+      "pos": [-100.83, 180.55],
+      "size": [396.19, 790.44],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {"name": "image", "shape": 7, "type": "IMAGE", "link": 7722},
+        {"name": "conversation", "shape": 7, "type": "LLM_CONVERSATION", "link": 7821},
+        {"name": "prompt_prefix", "shape": 7, "type": "STRING", "link": null}
+      ],
+      "outputs": [
+        {"name": "response", "type": "STRING", "links": [7809]},
+        {"name": "raw_response", "type": "STRING", "links": []},
+        {"name": "conversation", "type": "LLM_CONVERSATION", "links": []}
+      ],
+      "properties": {"Node name for S&R": "LocalLLMVisionQuery"},
+      "widgets_values": [
+        "What kind of animal is this?",
+        "http://127.0.0.1:5000/v1/chat/completions",
+        "",
+        0.2,
+        4096,
+        60,
+        "",
+        0.05,
+        0.95,
+        20,
+        1,
+        0,
+        227064791,
+        "randomize",
+        false,
+        2048,
+        true,
+        "auto",
+        16,
+        false,
+        false,
+        "off"
+      ]
+    },
+    {
+      "id": 837,
+      "type": "PreviewAny",
+      "pos": [336.82, 202.07],
+      "size": [510.97, 449.63],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {"name": "source", "type": "*", "link": 7809}
+      ],
+      "outputs": [
+        {"name": "STRING", "type": "STRING", "links": null}
+      ],
+      "properties": {"cnr_id": "comfy-core", "Node name for S&R": "PreviewAny"},
+      "widgets_values": []
+    },
+    {
+      "id": 843,
+      "type": "LoadImage",
+      "pos": [-405.25, 259.85],
+      "size": [282.8, 314],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "title": "Load Image (animal to identify)",
+      "inputs": [],
+      "outputs": [
+        {"name": "IMAGE", "type": "IMAGE", "links": [7722]},
+        {"name": "MASK", "type": "MASK", "links": null}
+      ],
+      "properties": {"cnr_id": "comfy-core", "Node name for S&R": "LoadImage"},
+      "widgets_values": ["test_animal.jpg", "image"]
+    },
+    {
+      "id": 904,
+      "type": "LLMFewShotExample",
+      "pos": [-896.22, 199.69],
+      "size": [451.7, 622.04],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {"name": "image", "shape": 7, "type": "IMAGE", "link": 7844},
+        {"name": "conversation", "shape": 7, "type": "LLM_CONVERSATION", "link": 7835}
+      ],
+      "outputs": [
+        {"name": "conversation", "type": "LLM_CONVERSATION", "links": [7821]}
+      ],
+      "properties": {"Node name for S&R": "LLMFewShotExample"},
+      "widgets_values": [
+        "What kind of animal is this?",
+        "common_name: Red Fox\nscientific_name: Vulpes vulpes\nclass: mammal\nkey_marks: rust-orange coat, white-tipped bushy tail, black legs, pointed ears\nconfidence: high",
+        "",
+        "auto",
+        16
+      ]
+    },
+    {
+      "id": 908,
+      "type": "LoadImage",
+      "pos": [-1215.58, 285.21],
+      "size": [282.8, 314],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "title": "Load Image (example: red fox)",
+      "inputs": [],
+      "outputs": [
+        {"name": "IMAGE", "type": "IMAGE", "links": [7844]},
+        {"name": "MASK", "type": "MASK", "links": []}
+      ],
+      "properties": {"cnr_id": "comfy-core", "Node name for S&R": "LoadImage"},
+      "widgets_values": ["example_red_fox.jpg", "image"]
+    },
+    {
+      "id": 914,
+      "type": "LLMFewShotExample",
+      "pos": [-1668.23, 213.89],
+      "size": [427.46, 658.94],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {"name": "image", "shape": 7, "type": "IMAGE", "link": 7879},
+        {"name": "conversation", "shape": 7, "type": "LLM_CONVERSATION", "link": null}
+      ],
+      "outputs": [
+        {"name": "conversation", "type": "LLM_CONVERSATION", "links": [7835]}
+      ],
+      "properties": {"Node name for S&R": "LLMFewShotExample"},
+      "widgets_values": [
+        "What kind of animal is this?",
+        "common_name: American Robin\nscientific_name: Turdus migratorius\nclass: bird\nkey_marks: orange-red breast, grey-brown back, yellow bill, white eye ring\nconfidence: high",
+        "",
+        "auto",
+        16
+      ]
+    },
+    {
+      "id": 918,
+      "type": "LoadImage",
+      "pos": [-1998.62, 213.83],
+      "size": [282.8, 314],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "title": "Load Image (example: American robin)",
+      "inputs": [],
+      "outputs": [
+        {"name": "IMAGE", "type": "IMAGE", "links": [7879]},
+        {"name": "MASK", "type": "MASK", "links": []}
+      ],
+      "properties": {"cnr_id": "comfy-core", "Node name for S&R": "LoadImage"},
+      "widgets_values": ["example_robin.jpg", "image"]
+    }
+  ],
+  "links": [
+    [7722, 843, 0, 827, 0, "IMAGE"],
+    [7809, 827, 0, 837, 0, "STRING"],
+    [7821, 904, 0, 827, 1, "LLM_CONVERSATION"],
+    [7835, 914, 0, 904, 1, "LLM_CONVERSATION"],
+    [7844, 908, 0, 904, 0, "IMAGE"],
+    [7879, 918, 0, 914, 0, "IMAGE"]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {"scale": 0.443, "offset": [3210.58, 717.09]},
+    "frontendVersion": "1.58.5"
+  },
+  "version": 0.4
+}
