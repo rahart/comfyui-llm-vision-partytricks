@@ -12,16 +12,31 @@ I built these for my own workflows and figured I'd share them with the community
 
 ## Install
 
-```bash
-cd ComfyUI/custom_nodes
-git clone https://github.com/rahart/comfyui-llm-vision-partytricks
-```
+Pick one:
+
+- **ComfyUI Manager:** *Custom Nodes Manager* → *Install via Git URL* → paste `https://github.com/rahart/comfyui-llm-vision-partytricks`.
+- **git** (Linux / macOS / Windows with Git installed):
+  ```bash
+  cd ComfyUI/custom_nodes
+  git clone https://github.com/rahart/comfyui-llm-vision-partytricks
+  ```
+- **No git (e.g. Windows portable):** on GitHub click *Code* → *Download ZIP*, and extract it into `ComfyUI\custom_nodes\`. For the portable build that's `ComfyUI_windows_portable\ComfyUI\custom_nodes\`. The folder name doesn't matter.
 
 Restart ComfyUI. All the nodes show up under **LLM Vision Party Tricks**.
 
 The only dependencies are `requests`, `numpy` and `Pillow`, which a normal ComfyUI install already has.
 
-You need your own LLM server running separately. These nodes just send it HTTP requests.
+You need your own LLM server running separately. These nodes just send it HTTP requests, so the server can be on the same PC or another machine on your network. Point `api_url` at its chat-completions endpoint. Common defaults:
+
+| Server | `api_url` |
+|---|---|
+| LM Studio | `http://127.0.0.1:1234/v1/chat/completions` |
+| Ollama | `http://127.0.0.1:11434/v1/chat/completions` |
+| llama.cpp `llama-server` | `http://127.0.0.1:8080/v1/chat/completions` |
+| vLLM | `http://127.0.0.1:8000/v1/chat/completions` |
+| text-generation-webui / tabbyAPI | `http://127.0.0.1:5000/v1/chat/completions` (the node's default) |
+
+**Platforms:** developed and tested on Linux. Windows and macOS are **untested**. There's no OS-specific code, but nobody has tried it there yet.
 
 ## API keys
 
@@ -65,7 +80,7 @@ Docker: `docker run -e LLM_API_KEY=your-key-here ...`, or `environment:` in dock
 ### LLM Query
 Sends a text prompt to a chat-completions endpoint.
 
-- `api_url` defaults to `http://127.0.0.1:5000/v1/chat/completions`. Change the port for your server (llama.cpp's default is usually `8080` and vLLM's is `8000`).
+- `api_url` defaults to `http://127.0.0.1:5000/v1/chat/completions`. See the table under [Install](#install) for common servers.
 - `model` can be left blank if your server only serves one model.
 - Optional sampling settings: `min_p`, `top_p`, `top_k`, `repeat_penalty`, `presence_penalty`, `seed`. Set them to `-1` or their neutral value to keep your server's defaults.
 - Thinking controls: `enable_thinking`, `thinking_budget`, `reasoning_effort` and `filter_thinking`. The last one strips `<think>…</think>` blocks and similar tags out of `response`, while `raw_response` keeps everything.
